@@ -26,6 +26,8 @@ public class MainActivity extends AppCompatActivity {
         .addSubMenu(Color.parseColor("#258CFF"),R.drawable.circle_1)
                 .addSubMenu(Color.parseColor("#258CFF"),R.drawable.circle_1);
 
+        Log.e("1",SCreenUtils.getVirtualBarHeigh(this)+"");
+        Log.e("2",SCreenUtils.getVirtualBarHeight(this)+"");
     }
 
     public void convertPhotoActivity() {
