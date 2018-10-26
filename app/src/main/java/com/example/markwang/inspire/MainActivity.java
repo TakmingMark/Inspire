@@ -1,6 +1,7 @@
 package com.example.markwang.inspire;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -15,16 +16,22 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
 
-        Button button=(Button)findViewById(R.id.photoButton);
-        MainClickListener mainClickListener=new MainClickListener(this);
+        Button button = (Button) findViewById(R.id.photoButton);
+        MainClickListener mainClickListener = new MainClickListener(this);
         button.setOnClickListener(mainClickListener);
+
+        CircleFoatingMenu circleFoatingMenu= (CircleFoatingMenu) findViewById(R.id.circleFoatingMenu);
+
+        circleFoatingMenu.setMainMenu(Color.parseColor("#258CFF"), R.drawable.main_1, R.drawable.circle_1)
+        .addSubMenu(Color.parseColor("#258CFF"),R.drawable.circle_1)
+                .addSubMenu(Color.parseColor("#258CFF"),R.drawable.circle_1);
 
     }
 
-    public void convertPhotoActivity(){
+    public void convertPhotoActivity() {
         Log.d("test", "convertPhotoActivity: this");
-        Intent intent=new Intent();
-        intent.setClass(MainActivity.this,PhotoActivity.class);
+        Intent intent = new Intent();
+        intent.setClass(MainActivity.this, PhotoActivity.class);
         startActivity(intent);
         this.finish();
     }

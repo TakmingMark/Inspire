@@ -11,5 +11,7 @@ public class PhotoActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
         Log.d("test", "PhotoActivity: this");
+
+
     }
 }
