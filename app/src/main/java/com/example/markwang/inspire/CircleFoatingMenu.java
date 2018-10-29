@@ -141,6 +141,8 @@ public class CircleFoatingMenu extends View {
 
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
+        Log.e("w",""+w);
+        Log.e("this.getMeasuredWidth()",""+this.getMeasuredWidth());
         int minSize = Math.min(this.getMeasuredWidth(), this.getMeasuredHeight());
         this.partSize = minSize / 10;
         this.iconSize = this.partSize * 4 / 5;
@@ -418,8 +420,12 @@ public class CircleFoatingMenu extends View {
                     if(status==16){
                         float x = getX() + dx;
                         float y = getY() + dy;
+                        Log.e("x",x+"");
+                        Log.e("partSize",partSize+"");
+                        Log.e("circleMenuRadius",circleMenuRadius+"");
+                        x = x < -(partSize*4) ?  -(partSize*4)  : x > screenWidth - partSize*6 ? screenWidth -partSize*6 : x;
 
-                        x = x < 0 ? 0 : x > screenWidth - getWidth() ? screenWidth - getWidth() : x;
+
                         if (y<0){
                             y=0;
                         }
