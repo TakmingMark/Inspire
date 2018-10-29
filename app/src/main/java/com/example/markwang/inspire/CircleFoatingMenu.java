@@ -71,6 +71,7 @@ public class CircleFoatingMenu extends View {
     private OnMenuSelectedListener onMenuSelectedListener;
     private OnMenuStatusChangeListener onMenuStatusChangeListener;
 
+    private boolean isDrag = false;
     private int screenWidth;
     private int screenHeight;
     private int screenWidthHalf;
@@ -84,7 +85,7 @@ public class CircleFoatingMenu extends View {
     private int lastX;
     private int lastY;
 
-    private boolean isDrag;
+
     public CircleFoatingMenu(Context context) {
         this(context, (AttributeSet) null);
     }
@@ -141,8 +142,8 @@ public class CircleFoatingMenu extends View {
 
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        Log.e("w",""+w);
-        Log.e("this.getMeasuredWidth()",""+this.getMeasuredWidth());
+        Log.e("w", "" + w);
+        Log.e("this.getMeasuredWidth()", "" + this.getMeasuredWidth());
         int minSize = Math.min(this.getMeasuredWidth(), this.getMeasuredHeight());
         this.partSize = minSize / 10;
         this.iconSize = this.partSize * 4 / 5;
@@ -364,21 +365,23 @@ public class CircleFoatingMenu extends View {
 
 
     public boolean onTouchEvent(MotionEvent event) {
-        int rawX=(int)event.getRawX();
-        int rawY=(int)event.getRawY();
-
-        int dx=rawX-lastX;
-        int dy=rawY-lastY;
+        int rawX = (int) event.getRawX();
+        int rawY = (int) event.getRawY();
+        Log.e("event", event.getAction() + "");
+        int dx = rawX - lastX;
+        int dy = rawY - lastY;
 
         if (this.status != 4 && this.status != 8) {
             int index = this.clickWhichRectF(event.getX(), event.getY());
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     this.pressed = true;
-                    if(status==16){
+                    this.isDrag = status == 16 && index == 0 ? true : false;
+
+                    if (this.status == 16) {
                         getParent().requestDisallowInterceptTouchEvent(true);
-                        this.downX=this.lastX = rawX;
-                        this.downY=this.lastY = rawY;
+                        this.downX = this.lastX = rawX;
+                        this.downY = this.lastY = rawY;
 
                     }
                     if (index != -1) {
@@ -387,11 +390,12 @@ public class CircleFoatingMenu extends View {
                     }
                     break;
                 case MotionEvent.ACTION_UP:
-                    Log.e("ACTION_UP","ACTION_UP");
                     this.pressed = false;
-                    this.upX=this.lastX;
-                    this.upY=this.lastY;
-                    int distance=(int)Math.sqrt(Math.pow(downX-upX,2)+Math.pow(downY-upY,2));
+                    this.isDrag = false;
+
+                    this.upX = this.lastX;
+                    this.upY = this.lastY;
+                    int distance = (int) Math.sqrt(Math.pow(downX - upX, 2) + Math.pow(downY - upY, 2));
 
                     if (index != -1) {
                         this.clickIndex = index;
@@ -399,7 +403,7 @@ public class CircleFoatingMenu extends View {
                     }
 
                     if (index == 0) {
-                        if (this.status == 16 && distance<2) {
+                        if (this.status == 16 && distance < 2) {
                             this.status = 1;
                             this.startOpenMenuAnima();
                         } else if (this.status == 2) {
@@ -417,21 +421,14 @@ public class CircleFoatingMenu extends View {
                     }
                     break;
                 case MotionEvent.ACTION_MOVE:
-                    if(status==16){
+                    if (status == 16 && isDrag) {
                         float x = getX() + dx;
                         float y = getY() + dy;
-                        Log.e("x",x+"");
-                        Log.e("partSize",partSize+"");
-                        Log.e("circleMenuRadius",circleMenuRadius+"");
-                        x = x < -(partSize*4) ?  -(partSize*4)  : x > screenWidth - partSize*6 ? screenWidth -partSize*6 : x;
+
+                        x = x < -(partSize * 4) ? -(partSize * 4) : x > screenWidth - partSize * 6 ? screenWidth - partSize * 6 : x;
+                        y = y < -(partSize * 4) ? -(partSize * 4) : y > screenHeight - statusBarHeight - partSize * 6 ? y = screenHeight - statusBarHeight -partSize * 6  : y;
 
 
-                        if (y<0){
-                            y=0;
-                        }
-                        if (y>screenHeight-statusBarHeight-getHeight()){
-                            y=screenHeight-statusBarHeight-getHeight();
-                        }
                         setX(x);
                         setY(y);
                         lastX = rawX;
