@@ -7,9 +7,9 @@ import android.view.WindowManager;
 
 import java.lang.reflect.Method;
 
-public class SCreenUtils {
+public class ScreenUtils {
 
-    private SCreenUtils() {
+    private ScreenUtils() {
         throw new UnsupportedOperationException("ScreenUtils cannot be instantiated");
     }
 

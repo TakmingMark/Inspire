@@ -22,6 +22,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v4.graphics.ColorUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -38,14 +39,7 @@ import java.util.List;
 
 
 public class CircleFoatingMenu extends View {
-    private static final int STATUS_MENU_OPEN = 1;
-    private static final int STATUS_MENU_OPENED = 2;
-    private static final int STATUS_MENU_CLOSE = 4;
-    private static final int STATUS_MENU_CLOSE_CLEAR = 8;
-    private static final int STATUS_MENU_CLOSED = 16;
-    private static final int STATUS_MENU_CANCEL = 32;
-    private static final int MAX_SUBMENU_NUM = 8;
-    private final int shadowRadius;
+
     private int partSize;
     private int iconSize;
     private float circleMenuRadius;
@@ -77,6 +71,20 @@ public class CircleFoatingMenu extends View {
     private OnMenuSelectedListener onMenuSelectedListener;
     private OnMenuStatusChangeListener onMenuStatusChangeListener;
 
+    private int screenWidth;
+    private int screenHeight;
+    private int screenWidthHalf;
+    private int statusBarHeight;
+    private int virtualBarHeight;
+
+    private int downX;
+    private int downY;
+    private int upX;
+    private int upY;
+    private int lastX;
+    private int lastY;
+
+    private boolean isDrag;
     public CircleFoatingMenu(Context context) {
         this(context, (AttributeSet) null);
     }
@@ -87,7 +95,6 @@ public class CircleFoatingMenu extends View {
 
     public CircleFoatingMenu(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        this.shadowRadius = 5;
         this.status = 16;
         this.init();
     }
@@ -98,6 +105,13 @@ public class CircleFoatingMenu extends View {
         this.subMenuColorList = new ArrayList();
         this.subMenuDrawableList = new ArrayList();
         this.menuRectFList = new ArrayList();
+
+        this.screenWidth = ScreenUtils.getScreenWidth(getContext());
+        this.screenWidthHalf = screenWidth / 2;
+        this.screenHeight = ScreenUtils.getScreenHeight(getContext());
+        this.statusBarHeight = ScreenUtils.getStatusBarHeight(getContext());
+        this.virtualBarHeight = ScreenUtils.getVirtualBarHeight(getContext());
+
     }
 
     private void initTool() {
@@ -116,17 +130,11 @@ public class CircleFoatingMenu extends View {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-        int width = MeasureSpec.getSize(widthMeasureSpec);
-        int height = MeasureSpec.getSize(heightMeasureSpec);
-        int measureWidthSize = width;
-        int measureHeightSize = height;
-        if (widthMode == -2147483648) {
-            measureWidthSize = this.dip2px(20.0F) * 10;
-        }
+        int measureWidthSize = MeasureSpec.getSize(widthMeasureSpec);
+        int measureHeightSize = MeasureSpec.getSize(heightMeasureSpec);
 
-        if (heightMode == -2147483648) {
-            measureHeightSize = this.dip2px(20.0F) * 10;
-        }
+        measureWidthSize = (widthMode == MeasureSpec.AT_MOST) ? this.dip2px(20.0F) * 10 : measureWidthSize;
+        measureHeightSize = (heightMode == MeasureSpec.AT_MOST) ? this.dip2px(20.0F) * 10 : measureHeightSize;
 
         this.setMeasuredDimension(measureWidthSize, measureHeightSize);
     }
@@ -153,7 +161,7 @@ public class CircleFoatingMenu extends View {
                 this.drawMainMenu(canvas);
                 this.drawSubMenu(canvas);
                 break;
-            case 2:
+            case 2://draw main and sub circle
                 this.drawMainMenu(canvas);
                 this.drawSubMenu(canvas);
                 break;
@@ -166,7 +174,7 @@ public class CircleFoatingMenu extends View {
                 this.drawMainMenu(canvas);
                 this.drawCircleMenu(canvas);
                 break;
-            case 16:
+            case 16://only draw main menu circle
                 this.drawMainMenu(canvas);
                 break;
             case 32:
@@ -176,6 +184,9 @@ public class CircleFoatingMenu extends View {
 
     }
 
+    /*
+    while pressing the subCircle,draw circle around the path.
+     */
     private void drawCircleMenu(Canvas canvas) {
         if (this.status == 4) {
             this.drawCirclePath(canvas);
@@ -349,26 +360,44 @@ public class CircleFoatingMenu extends View {
 
     }
 
+
     public boolean onTouchEvent(MotionEvent event) {
+        int rawX=(int)event.getRawX();
+        int rawY=(int)event.getRawY();
+
+        int dx=rawX-lastX;
+        int dy=rawY-lastY;
+
         if (this.status != 4 && this.status != 8) {
             int index = this.clickWhichRectF(event.getX(), event.getY());
             switch (event.getAction()) {
-                case 0:
+                case MotionEvent.ACTION_DOWN:
                     this.pressed = true;
+                    if(status==16){
+                        getParent().requestDisallowInterceptTouchEvent(true);
+                        this.downX=this.lastX = rawX;
+                        this.downY=this.lastY = rawY;
+
+                    }
                     if (index != -1) {
                         this.clickIndex = index;
                         this.updatePressEffect(index, this.pressed);
                     }
                     break;
-                case 1:
+                case MotionEvent.ACTION_UP:
+                    Log.e("ACTION_UP","ACTION_UP");
                     this.pressed = false;
+                    this.upX=this.lastX;
+                    this.upY=this.lastY;
+                    int distance=(int)Math.sqrt(Math.pow(downX-upX,2)+Math.pow(downY-upY,2));
+
                     if (index != -1) {
                         this.clickIndex = index;
                         this.updatePressEffect(index, this.pressed);
                     }
 
                     if (index == 0) {
-                        if (this.status == 16) {
+                        if (this.status == 16 && distance<2) {
                             this.status = 1;
                             this.startOpenMenuAnima();
                         } else if (this.status == 2) {
@@ -385,13 +414,29 @@ public class CircleFoatingMenu extends View {
                         this.startCloseMeunAnima();
                     }
                     break;
-                case 2:
+                case MotionEvent.ACTION_MOVE:
+                    if(status==16){
+                        float x = getX() + dx;
+                        float y = getY() + dy;
+
+                        x = x < 0 ? 0 : x > screenWidth - getWidth() ? screenWidth - getWidth() : x;
+                        if (y<0){
+                            y=0;
+                        }
+                        if (y>screenHeight-statusBarHeight-getHeight()){
+                            y=screenHeight-statusBarHeight-getHeight();
+                        }
+                        setX(x);
+                        setY(y);
+                        lastX = rawX;
+                        lastY = rawY;
+                        this.invalidate();
+                    }
                     if (index == -1) {
                         this.pressed = false;
                         this.invalidate();
                     }
             }
-
             return true;
         } else {
             return true;

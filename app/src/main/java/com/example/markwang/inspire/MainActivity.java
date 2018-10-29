@@ -9,6 +9,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 
+import com.hitomi.cmlibrary.OnMenuSelectedListener;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -26,8 +28,13 @@ public class MainActivity extends AppCompatActivity {
         .addSubMenu(Color.parseColor("#258CFF"),R.drawable.circle_1)
                 .addSubMenu(Color.parseColor("#258CFF"),R.drawable.circle_1);
 
-        Log.e("1",SCreenUtils.getVirtualBarHeigh(this)+"");
-        Log.e("2",SCreenUtils.getVirtualBarHeight(this)+"");
+        circleFoatingMenu.setOnMenuSelectedListener(new OnMenuSelectedListener() {
+            @Override
+            public void onMenuSelected(int i) {
+                Log.e("onMenuSelected",i+"");
+            }
+        });
+
     }
 
     public void convertPhotoActivity() {
