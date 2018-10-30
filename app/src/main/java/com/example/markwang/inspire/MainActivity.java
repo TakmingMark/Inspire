@@ -22,16 +22,19 @@ public class MainActivity extends AppCompatActivity {
         MainClickListener mainClickListener = new MainClickListener(this);
         button.setOnClickListener(mainClickListener);
 
-        CircleFoatingMenu circleFoatingMenu= (CircleFoatingMenu) findViewById(R.id.circleFoatingMenu);
+        CircleFoatingMenu circleFoatingMenu = (CircleFoatingMenu) findViewById(R.id.circleFoatingMenu);
 
-        circleFoatingMenu.setMainMenu(Color.parseColor("#258CFF"), R.drawable.main_1, R.drawable.circle_1)
-        .addSubMenu(Color.parseColor("#258CFF"),R.drawable.circle_1)
-                .addSubMenu(Color.parseColor("#258CFF"),R.drawable.circle_1);
+        circleFoatingMenu.setMainMenu(Color.parseColor("#A916ED"), R.drawable.circle_enter, R.drawable.circle_cancel)
+                .addSubMenu(Color.parseColor("#ED1616"), R.drawable.circle_news)
+                .addSubMenu(Color.parseColor("#EDED16"), R.drawable.circle_photo)
+                .addSubMenu(Color.parseColor("#47ED16"), R.drawable.circle_donate)
+                .addSubMenu(Color.parseColor("#16EDE6"), R.drawable.circle_help)
+                .addSubMenu(Color.parseColor("#163AED"), R.drawable.circle_activity);
 
         circleFoatingMenu.setOnMenuSelectedListener(new OnMenuSelectedListener() {
             @Override
             public void onMenuSelected(int i) {
-                Log.e("onMenuSelected",i+"");
+                Log.e("onMenuSelected", i + "");
             }
         });
 

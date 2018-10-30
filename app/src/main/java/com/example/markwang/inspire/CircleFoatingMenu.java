@@ -22,7 +22,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v4.graphics.ColorUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -74,9 +73,7 @@ public class CircleFoatingMenu extends View {
     private boolean isDrag = false;
     private int screenWidth;
     private int screenHeight;
-    private int screenWidthHalf;
     private int statusBarHeight;
-    private int virtualBarHeight;
 
     private int downX;
     private int downY;
@@ -108,21 +105,22 @@ public class CircleFoatingMenu extends View {
         this.menuRectFList = new ArrayList();
 
         this.screenWidth = ScreenUtils.getScreenWidth(getContext());
-        this.screenWidthHalf = screenWidth / 2;
+
         this.screenHeight = ScreenUtils.getScreenHeight(getContext());
         this.statusBarHeight = ScreenUtils.getStatusBarHeight(getContext());
-        this.virtualBarHeight = ScreenUtils.getVirtualBarHeight(getContext());
-
     }
 
     private void initTool() {
         this.oPaint = new Paint(1);
         this.oPaint.setStyle(Style.FILL_AND_STROKE);
+
         this.cPaint = new Paint(1);
         this.cPaint.setStyle(Style.STROKE);
         this.cPaint.setStrokeCap(Cap.ROUND);
+
         this.sPaint = new Paint(1);
         this.sPaint.setStyle(Style.FILL);
+
         this.path = new Path();
         this.dstPath = new Path();
         this.pathMeasure = new PathMeasure();
@@ -142,11 +140,9 @@ public class CircleFoatingMenu extends View {
 
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        Log.e("w", "" + w);
-        Log.e("this.getMeasuredWidth()", "" + this.getMeasuredWidth());
         int minSize = Math.min(this.getMeasuredWidth(), this.getMeasuredHeight());
         this.partSize = minSize / 10;
-        this.iconSize = this.partSize * 4 / 5;
+        this.iconSize = this.partSize ;
         this.circleMenuRadius = (float) (this.partSize * 3);
         this.centerX = this.getMeasuredWidth() / 2;
         this.centerY = this.getMeasuredHeight() / 2;
@@ -159,6 +155,7 @@ public class CircleFoatingMenu extends View {
     }
 
     protected void onDraw(Canvas canvas) {
+
         switch (this.status) {
             case 1:
                 this.drawMainMenu(canvas);
@@ -168,7 +165,7 @@ public class CircleFoatingMenu extends View {
                 this.drawMainMenu(canvas);
                 this.drawSubMenu(canvas);
                 break;
-            case 4:
+            case 4://while pressing the subMenu,draw the around circle
                 this.drawMainMenu(canvas);
                 this.drawSubMenu(canvas);
                 this.drawCircleMenu(canvas);
@@ -367,7 +364,6 @@ public class CircleFoatingMenu extends View {
     public boolean onTouchEvent(MotionEvent event) {
         int rawX = (int) event.getRawX();
         int rawY = (int) event.getRawY();
-        Log.e("event", event.getAction() + "");
         int dx = rawX - lastX;
         int dy = rawY - lastY;
 
